@@ -1,0 +1,18 @@
+# Production overlay: `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build`
+#
+# Differences from the default docker-compose.yml (which is tuned for local
+# dev/demo, per the root README):
+# - backend no longer publishes :8000 to the host — only the frontend
+#   container (nginx) talks to it, over the internal compose network. Nothing
+#   outside the host should ever reach the API or Swagger directly.
+# - frontend's :8080 is bound to 127.0.0.1 only — a host nginx (with a real
+#   TLS cert) is expected to reverse-proxy to it, so it shouldn't also be
+#   reachable directly on the public interface.
+
+services:
+  backend:
+    ports: !reset []
+
+  frontend:
+    ports: !override
+      - "127.0.0.1:8080:80"
